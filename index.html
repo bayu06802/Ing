@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>English Course</title>
+
+<style>
+body { font-family: Arial; margin:0; }
+
+.sidebar {
+  width: 220px;
+  height: 100vh;
+  background: #222;
+  color: white;
+  position: fixed;
+  overflow-y: auto;
+}
+
+.sidebar button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  background: none;
+  color: white;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sidebar button:hover { background: #444; }
+
+.content {
+  margin-left: 220px;
+  padding: 20px;
+}
+
+iframe {
+  width: 100%;
+  height: 400px;
+}
+
+audio {
+  width: 100%;
+  margin: 5px 0;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="sidebar" id="menu"></div>
+
+<div class="content">
+  <h2 id="title">Select Lesson</h2>
+  <div id="pdfContainer"></div>
+  <div id="audioContainer"></div>
+</div>
+
+<script>
+let data = {};
+
+fetch("manifest.json")
+.then(res => res.json())
+.then(json => {
+    data = json;
+    loadMenu();
+});
+
+function loadMenu() {
+    let menu = document.getElementById("menu");
+
+    Object.keys(data).forEach(lesson => {
+        let btn = document.createElement("button");
+        btn.innerText = "Lesson " + lesson;
+        btn.onclick = () => loadLesson(lesson);
+        menu.appendChild(btn);
+    });
+}
+
+function loadLesson(lesson) {
+    document.getElementById("title").innerText = "Lesson " + lesson;
+
+    let pdfDiv = document.getElementById("pdfContainer");
+    let audioDiv = document.getElementById("audioContainer");
+
+    pdfDiv.innerHTML = "";
+    audioDiv.innerHTML = "";
+
+    // LOAD PDF
+    data[lesson].pdf.forEach(file => {
+        let iframe = document.createElement("iframe");
+        iframe.src = `pdf/${lesson}/${file}`;
+        pdfDiv.appendChild(iframe);
+    });
+
+    // LOAD AUDIO
+    data[lesson].audio.forEach(file => {
+        let audio = document.createElement("audio");
+        audio.controls = true;
+        audio.src = `mp3/${lesson}/${file}`;
+        audioDiv.appendChild(audio);
+    });
+}
+</script>
+
+</body>
+</html>
